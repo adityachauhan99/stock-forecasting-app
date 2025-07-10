@@ -24,16 +24,16 @@ An AI-powered forecasting tool that lets users select any stock symbol (e.g., `A
 ## 📸 App Screenshots
 
 ### 🔹 Candlestick + Volume
-![Candlestick Chart](screenshots/candlestick.png)
+![Candlestick Chart](screenshots/Screenshot_1.png)
 
 ### 🔹 Forecast vs Actual Prices
-![Forecast vs Actual](screenshots/forecast.png)
+![Forecast vs Actual](screenshots/Screenshot_2.png)
 
 ### 🔹 Evaluation Metrics
-![Metrics](screenshots/metrics.png)
+![Metrics](screenshots/Screenshot_3.png)
 
 ### 🔹 Download Forecast as CSV
-![Download CSV](screenshots/download.png)
+![Download CSV](screenshots/Screenshot_4.png)
 
 ---
 
