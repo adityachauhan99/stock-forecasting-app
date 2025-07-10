@@ -1,36 +1,48 @@
-# Stock Price Forecasting App
+# Stock Price Forecasting App (Prophet + Streamlit)
 
-An interactive and beginner-friendly web app that lets users forecast stock prices using **Facebook Prophet** and visualize them with candlestick charts, volume bars, and performance metrics.
+An AI-powered forecasting tool that lets users select any stock symbol (e.g., `AAPL`, `INFY`) and predict its future prices using **Facebook Prophet**. Includes interactive **candlestick + volume charts**, **evaluation metrics**, and **downloadable forecast CSVs**. Built with **Streamlit**.
 
 ---
 
 ## Features
 
-- Search and select any stock using its ticker symbol (e.g., `AAPL`, `GOOG`, `INFY`)
-- Choose historical time range (in months or years)
-- Forecast stock prices for up to 90 future days
-- Compare forecasted vs actual stock prices on an interactive plot
-- Candlestick + volume chart for price action visualization
-- Evaluation metrics: **RMSE**, **MAE**, and **R²**
-- Download the forecast data as CSV
+- Input any valid stock ticker (e.g., AAPL, MSFT, TSLA)
+- Choose historical time range in **months or years**
+- Forecast closing prices for up to **90 days into the future**
+- Automatically fetch historical OHLCV data using **yfinance**
+- Show **candlestick chart + volume bars** for price action
+- Train a **Prophet forecasting model** with auto tuning
+- Display:
+  - Forecast vs Actual prices (clean dual-line chart)
+  - Candlestick + Volume chart (Plotly)
+  - Evaluation metrics: **RMSE**, **MAE**, **R²**
+- Export forecast results to `.csv`
+- Fully interactive and beginner-friendly UI via **Streamlit**
 
 ---
 
-## 🛠️ Tech Stack
+## 📸 App Screenshots
 
-- **Streamlit** — Web app framework
-- **yFinance** — Real-time and historical stock data
-- **Facebook Prophet** — Forecasting model
-- **Plotly** — Interactive plotting
-- **scikit-learn** — Model evaluation metrics
-- **Python** 3.8+
+### 🔹 Candlestick + Volume
+![Candlestick Chart](screenshots/candlestick.png)
+
+### 🔹 Forecast vs Actual Prices
+![Forecast vs Actual](screenshots/forecast.png)
+
+### 🔹 Evaluation Metrics
+![Metrics](screenshots/metrics.png)
+
+### 🔹 Download Forecast as CSV
+![Download CSV](screenshots/download.png)
 
 ---
 
-## 🚀 Getting Started
-
-### Clone the repository
+## 🛠 How to Run Locally
 
 ```bash
 git clone https://github.com/your-username/stock-price-forecasting-app.git
 cd stock-price-forecasting-app
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+streamlit run stock_forecasting_app.py
