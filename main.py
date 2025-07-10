@@ -9,12 +9,41 @@ from datetime import date, timedelta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.metrics import mean_squared_error , mean_absolute_error ,r2_score
-
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import requests
 
 # Sidebar Inputs
 
 st.sidebar.title("Stock Price Forecaster")
 ticker=st.sidebar.text_input("Enter Stock Ticker/Symbol",value="AAPL")
+st.sidebar.markdown("---")
+st.sidebar.subheader("News Sentiment")
+show_sentiment=st.sidebar.checkbox("Show Latest News And Sentiment",value=True)
+if show_sentiment:
+    st.subheader(f"Latest News And Sentiment - {ticker}")
+    API_KEY="a06bae0811654324b92ce5da0087f1b8"
+    url=f"https://newsapi.org/v2/everything?q={ticker}&language=en&sortBy=publishedAt&apiKey={API_KEY}"
+    response=requests.get(url)
+    articles=response.json().get("articles",[])
+
+    analyzer = SentimentIntensityAnalyzer()
+
+    if articles:
+        for article in articles[:10]:
+            title=article["title"]
+            url=article["url"]
+            published=article["publishedAt"]
+            score=analyzer.polarity_scores(title)["compound"]
+            sentiment="Positive" if score>0.2 else "Negative" if score<-0.2 else "Neutral"
+
+            st.write(f"**Title:** {title}")
+            st.write(f"**Sentiment:** {sentiment} ({score:.2f})")
+            st.write(f"**Published:** {published}")
+            st.write(f"[Read More]({url})")
+            st.markdown("---")
+
+            
+    
 period_unit=st.sidebar.radio("Choose A Time Unit For History",("Years","Months"),horizontal=True)
 if period_unit=="Years":
     years_back=st.sidebar.slider("Years Of History",1,10,3)
@@ -24,7 +53,7 @@ else:
     months_back=st.sidebar.slider("Months Of History",1,11,3)
     start=date.today() - timedelta(days=30*months_back)
     end=date.today()
-forecast_period=st.sidebar.slider("Forecast Period (Days)",7,90,30)
+forecast_period=st.sidebar.slider("Forecast Period (Days)",7,90,7)
 
 # Data Download 
 
@@ -54,13 +83,36 @@ def load_ohlcv(sym, start, end):
 # Showing Raw Closing Price With Candlesticks
 
 data=load_ohlcv(ticker,start,end)
+
+# Technical Indicators
+
+# SMA - Simple Moving Average (20 Days)
+data["SMA_20"]=data["Close"].rolling(window=20).mean()
+
+# EMA - Exponential Moving Average (20 Days)
+data["EMA_20"]=data["Close"].ewm(span=20,adjust=False).mean()
+
+#RSI - Relative Strength Index (14 Days)
+def compute_rsi(df,window=14):
+    delta=df["Close"].diff()
+    gain=delta.clip(lower=0)
+    loss=-delta.clip(upper=0)
+    avg_gain=gain.rolling(window=window).mean()
+    avg_loss=loss.rolling(window=window).mean()
+    rs=avg_gain/avg_loss
+    rsi=100-(100/(1+rs))
+    return rsi
+
+data["RSI_14"]=compute_rsi(data)
+
 st.subheader(f"Raw Closing Price - {ticker}")
 
 fig= make_subplots(
-    rows=2,cols=1 , shared_xaxes=True,
-    row_heights=[0.7,0.3] , vertical_spacing=0.02,
+    rows=3,cols=1 , shared_xaxes=True,
+    row_heights=[0.6,0.25,0.15] , vertical_spacing=0.02,
     specs=[[{"type":"candlestick"}],
-           [{"type":"bar"}]]
+           [{"type":"bar"}],
+           [{"type":"scatter"}]]
 )
 
 # Candlestick Trace
@@ -74,6 +126,24 @@ fig.add_trace(go.Candlestick(
 ),row=1,col=1
 
 )
+
+fig.add_trace(go.Scatter(
+    x=data["Date"],
+    y=data["SMA_20"],
+    mode="lines",
+    name="SMA 20",
+    line=dict(color="blue")
+),row=1,col=1)
+
+fig.add_trace(go.Scatter(
+    x=data["Date"],
+    y=data["EMA_20"],
+    mode="lines",
+    name="EMA 20",
+    line=dict(color="orange")
+
+),row=1,col=1)
+
 
 # Volume
 vol_colors = []
@@ -94,14 +164,26 @@ fig.add_trace(go.Bar(
 
 )
 
+fig.add_trace(go.Scatter(
+    x=data["Date"],
+    y=data["RSI_14"],
+    mode="lines",
+    name="RSI 14",
+    line=dict(color="purple")
+),row=3,col=1)
+
+fig.add_hline(y=70,row=3,col=1,line_color="red",line_dash="dot")
+fig.add_hline(y=30,row=3,col=1,line_color="green",line_dash="dot")
+
 # Layout 
 fig.update_layout(
     xaxis_title="Date",
     yaxis_title="Price (USD)",
     yaxis2_title="Volume",
+    yaxis3_title="RSI",
     height=600,
     margin=dict(t=40,b=20),
-    xaxis_rangeslider_visible=False
+    xaxis_rangeslider_visible=True
 )
 
 # Display In Streamlit
