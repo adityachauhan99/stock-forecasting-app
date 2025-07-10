@@ -7,7 +7,7 @@ An AI-powered forecasting and analysis tool that lets users explore and predict 
 ## 🌐 Live App
 
 👉 Try it now on **Streamlit Cloud**:  
-[Live Demo](https://adityachauhan99-stock-price-forecasting-app.streamlit.app)  
+[Live Demo](https://adityachauhan99-stock-forecasting-app.streamlit.app)  
 
 ---
 
